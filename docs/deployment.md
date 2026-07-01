@@ -42,19 +42,27 @@ Paste the resulting client ID/secret pairs into the backend's env vars and redep
 
 ## Creating your admin account in production
 
-There's no public registration endpoint by design (see [../README.md](../README.md#admin-access)). To create your production admin login, run the bootstrap script from your own machine against the production database:
+There's no public registration endpoint by design (see [../README.md](../README.md#admin-access)). Free-tier Render services don't include Shell access, and hand-rolling an external Postgres connection from your own machine means dealing with SSL — so instead, use the one-time bootstrap endpoint:
 
-```bash
-cd backend
-DATABASE_URL="<internal or external connection string from the Render Postgres dashboard, rewritten to postgresql+asyncpg://>" \
-  python scripts/create_admin.py
-```
+1. In the Render dashboard, set the backend's `BOOTSTRAP_SECRET` env var to a long random value (e.g. generate one with `openssl rand -hex 32`). Save — this redeploys the backend.
+2. Call the endpoint once, over HTTPS, from your own terminal:
 
-The script prompts for email/password interactively (hidden input) — the password never leaves your terminal. Alternatively, if your Render plan includes shell access to the backend service, run `python scripts/create_admin.py` directly from the **Shell** tab in the Render dashboard, which avoids exposing the database's external connection string at all.
+   ```bash
+   curl -X POST https://<backend URL>/api/v1/auth/bootstrap-admin \
+     -H "Content-Type: application/json" \
+     -H "x-bootstrap-secret: <the value you just set>" \
+     -d '{"email": "you@example.com", "password": "choose-a-strong-password"}'
+   ```
+
+   This only works once — it refuses to run if any admin account already exists (`409 Conflict`), and it's disabled entirely (`404`) whenever `BOOTSTRAP_SECRET` is blank. Your password travels over HTTPS the same way it does for the regular login endpoint.
+3. Delete the `BOOTSTRAP_SECRET` env var afterward (not required for safety — the endpoint self-disables once an admin exists — but there's no reason to leave it set).
+4. Log in at `<frontend URL>/admin/login` with the email/password you just created.
+
+If your Render plan does include Shell access (Starter tier and up), you can use `python scripts/create_admin.py` from the **Shell** tab instead, which skips the HTTP round-trip entirely.
 
 ## Seeding placeholder content (optional)
 
-`backend/scripts/seed.py` inserts the same placeholder projects/skills/etc. used in local dev. Run it the same way as `create_admin.py` (env var pointing at the prod database, or via Render's Shell) if you want a populated site before writing real content.
+`backend/scripts/seed.py` inserts the same placeholder projects/skills/etc. used in local dev. It needs direct database access, so run it from Render's Shell tab if available; on free tier, the simplest path is running it locally against the external Postgres connection string from the Render dashboard (rewritten to `postgresql+asyncpg://`, with `?ssl=require` appended).
 
 ## Redeploying
 

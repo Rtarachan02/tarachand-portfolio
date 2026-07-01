@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -14,6 +14,10 @@ async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
     stmt = select(User).where(User.email == email.lower())
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
+
+
+async def count_users(db: AsyncSession) -> int:
+    return (await db.execute(select(func.count()).select_from(User))).scalar_one()
 
 
 async def authenticate_user(db: AsyncSession, email: str, password: str) -> User | None:

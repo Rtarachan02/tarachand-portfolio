@@ -56,6 +56,10 @@ class Settings(BaseSettings):
     allowed_admin_emails: str = ""
     refresh_token_cookie_name: str = "portfolio_refresh_token"
 
+    # One-time production admin bootstrap (see POST /auth/bootstrap-admin). Blank by
+    # default, which disables the endpoint outright — only set this temporarily.
+    bootstrap_secret: str = ""
+
     # --- CORS ---
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
 

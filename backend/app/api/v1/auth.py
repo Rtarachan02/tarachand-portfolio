@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+import hmac
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -63,4 +65,33 @@ async def logout(response: Response) -> None:
 
 @router.get("/me", response_model=UserRead)
 async def me(user: User = Depends(get_current_user)) -> UserRead:
+    return UserRead.model_validate(user)
+
+
+@router.post("/bootstrap-admin", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@limiter.limit("3/minute")
+async def bootstrap_admin(
+    request: Request,
+    payload: LoginRequest,
+    db: AsyncSession = Depends(get_db),
+    x_bootstrap_secret: str = Header(default=""),
+) -> UserRead:
+    """Create the very first admin account in a fresh deployment.
+
+    Disabled unless BOOTSTRAP_SECRET is set, and refuses to run once any user
+    already exists — so it can't be used to add a second account or take over
+    an existing one, even if the secret is left configured indefinitely.
+    """
+    if not settings.bootstrap_secret:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    if not hmac.compare_digest(x_bootstrap_secret, settings.bootstrap_secret):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid secret")
+
+    if await auth_service.count_users(db) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="An admin account already exists"
+        )
+
+    user = await auth_service.create_admin_user(db, payload.email, payload.password)
     return UserRead.model_validate(user)
