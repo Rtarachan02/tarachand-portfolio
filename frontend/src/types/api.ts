@@ -90,3 +90,32 @@ export interface ContactMessageCreate {
   subject: string;
   message: string;
 }
+
+export interface ContactMessageAdmin {
+  id: number;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface AnalyticsSummary {
+  total_pageviews: number;
+  unique_visitors: number;
+  top_paths: { path: string; count: number }[];
+}
+
+export interface ProjectCreate {
+  slug: string;
+  title: string;
+  summary: string;
+  description: string;
+  category: ProjectCategory;
+  tech_stack: string[];
+  repo_url?: string | null;
+  live_url?: string | null;
+  image_url?: string | null;
+  featured?: boolean;
+}

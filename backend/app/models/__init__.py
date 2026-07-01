@@ -8,6 +8,7 @@ from app.models.project import Project, ProjectCategory
 from app.models.resume import Resume
 from app.models.skill import Skill, SkillCategory
 from app.models.testimonial import Testimonial
+from app.models.user import OAuthProvider, User
 from app.models.visitor import Visitor
 
 __all__ = [
@@ -15,11 +16,13 @@ __all__ = [
     "Certification",
     "ContactMessage",
     "Experience",
+    "OAuthProvider",
     "Project",
     "ProjectCategory",
     "Resume",
     "Skill",
     "SkillCategory",
     "Testimonial",
+    "User",
     "Visitor",
 ]

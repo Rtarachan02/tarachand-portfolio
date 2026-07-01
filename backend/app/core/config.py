@@ -37,6 +37,12 @@ class Settings(BaseSettings):
     github_client_secret: str = ""
     oauth_redirect_base_url: str = "http://localhost:5173"
 
+    # --- Admin access control ---
+    # Comma-separated allowlist: only these emails may ever hold an admin session,
+    # whether via password login or OAuth. There is no public self-registration.
+    allowed_admin_emails: str = ""
+    refresh_token_cookie_name: str = "portfolio_refresh_token"
+
     # --- CORS ---
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
 
@@ -57,6 +63,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @property
+    def allowed_admin_emails_list(self) -> list[str]:
+        return [e.strip().lower() for e in self.allowed_admin_emails.split(",") if e.strip()]
 
     @property
     def is_production(self) -> bool:

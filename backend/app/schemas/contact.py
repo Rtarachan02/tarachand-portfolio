@@ -18,3 +18,8 @@ class ContactMessageRead(BaseModel):
     email: EmailStr
     subject: str
     created_at: datetime
+
+
+class ContactMessageAdminRead(ContactMessageRead):
+    message: str
+    is_read: bool

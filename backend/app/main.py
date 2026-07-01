@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.v1 import api_router as api_v1_router
 from app.core.config import settings
@@ -38,6 +39,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    # Required by Authlib to store OAuth state/nonce across the redirect round-trip.
+    app.add_middleware(SessionMiddleware, secret_key=settings.secret_key, same_site="lax")
 
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
