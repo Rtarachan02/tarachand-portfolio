@@ -4,6 +4,7 @@ from app.models.blog import BlogPost
 from app.models.certification import Certification
 from app.models.contact import ContactMessage
 from app.models.experience import Experience
+from app.models.profile import SiteProfile
 from app.models.project import Project, ProjectCategory
 from app.models.resume import Resume
 from app.models.skill import Skill, SkillCategory
@@ -20,6 +21,7 @@ __all__ = [
     "Project",
     "ProjectCategory",
     "Resume",
+    "SiteProfile",
     "Skill",
     "SkillCategory",
     "Testimonial",
