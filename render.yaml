@@ -1,5 +1,14 @@
 # Render Blueprint (Infrastructure as Code) — see https://render.com/docs/blueprint-spec
-# Placeholder for Phase 1; will be refined and deployed for real in Phase 7 (Deployment).
+#
+# Notes:
+# - Redis is intentionally NOT provisioned here: nothing in the codebase uses it yet
+#   (rate limiting runs in-memory via slowapi), and Render no longer offers a free Redis
+#   tier. Add a `type: redis` service here if/when a real caching need shows up.
+# - The free Postgres plan is deleted by Render after ~30 days. Fine for an initial
+#   deploy/demo; upgrade the plan before that matters for real use.
+# - CORS_ORIGINS, OAUTH_REDIRECT_BASE_URL, and VITE_API_URL all reference the *other*
+#   service's URL, which Render only assigns after first deploy — set these manually in
+#   the Render dashboard once both services are up, then redeploy the backend.
 
 databases:
   - name: portfolio-postgres
@@ -8,11 +17,6 @@ databases:
     user: portfolio
 
 services:
-  - type: redis
-    name: portfolio-redis
-    plan: free
-    ipAllowList: []
-
   - type: web
     name: portfolio-backend
     runtime: docker
@@ -20,6 +24,7 @@ services:
     dockerContext: ./backend
     plan: free
     healthCheckPath: /health
+    preDeployCommand: alembic upgrade head
     envVars:
       - key: ENVIRONMENT
         value: production
@@ -27,14 +32,13 @@ services:
         fromDatabase:
           name: portfolio-postgres
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: portfolio-redis
-          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
+        sync: false
+      - key: OAUTH_REDIRECT_BASE_URL
+        sync: false
+      - key: ALLOWED_ADMIN_EMAILS
         sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false

@@ -2,6 +2,7 @@
 
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,6 +21,18 @@ class Settings(BaseSettings):
 
     # --- Database ---
     database_url: str = "postgresql+asyncpg://portfolio:change-me@localhost:5432/portfolio"
+
+    @field_validator("database_url")
+    @classmethod
+    def _use_asyncpg_dialect(cls, value: str) -> str:
+        # Managed Postgres providers (Render, Heroku, etc.) hand out plain
+        # postgres:// or postgresql:// URLs, but create_async_engine requires the
+        # asyncpg dialect to be spelled out explicitly.
+        if value.startswith("postgres://"):
+            return "postgresql+asyncpg://" + value[len("postgres://") :]
+        if value.startswith("postgresql://"):
+            return "postgresql+asyncpg://" + value[len("postgresql://") :]
+        return value
 
     # --- Redis ---
     redis_url: str = "redis://localhost:6379/0"

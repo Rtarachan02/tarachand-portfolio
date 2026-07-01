@@ -11,9 +11,10 @@ portfolio/
 ├── backend/        FastAPI application (Python 3.13+, SQLAlchemy 2.x, Alembic)
 ├── frontend/        React 19 + Vite + TypeScript + Tailwind CSS
 ├── database/        SQL init/seed scripts (Alembic is the source of truth for schema)
-├── deployment/       docker-compose.yml, render.yaml, nginx config
+├── deployment/       docker-compose.yml, nginx config
 ├── docs/             Architecture, API, and deployment documentation
 ├── scripts/          Local dev helper scripts
+├── render.yaml        Render Blueprint (must live at repo root — see docs/deployment.md)
 └── .env.example      Documents every environment variable used by the stack
 ```
 
@@ -62,6 +63,10 @@ There is **no public registration endpoint** — admin accounts are created one 
 
 Visit `/admin/login` on the frontend to sign in; the dashboard at `/admin` lets you manage projects, review contact messages, and view visitor analytics.
 
+## Deploying
+
+See [docs/deployment.md](docs/deployment.md) for the full Render Blueprint walkthrough (env vars, OAuth app setup, production admin bootstrap).
+
 ## Tech stack
 
 | Layer | Technologies |
@@ -78,7 +83,7 @@ Visit `/admin/login` on the frontend to sign in; the dashboard at `/admin` lets 
 4. ✅ Frontend core (routing, theme, layout, live data wiring, contact form)
 5. ✅ Authentication (JWT + Google/GitHub OAuth, admin dashboard: projects CMS, contact inbox, analytics)
 6. ✅ Interactive UI (Three.js DMA ring-buffer visualization, scroll-reveal animations, animated hero, real markdown + syntax-highlighted blog rendering, route-based code splitting)
-7. ⬜ Deployment (Docker, Render) — compose file written, not yet deployed
+7. 🟡 Deployment — `render.yaml` blueprint + [deployment guide](docs/deployment.md) ready; live deploy is a manual Render dashboard step (see guide)
 8. ⬜ Testing (broader backend + frontend coverage)
 9. ⬜ Documentation
 10. ⬜ Production release (SEO, performance, security pass)
