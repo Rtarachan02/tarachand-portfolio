@@ -16,7 +16,7 @@ from app.core.security import (
 )
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.auth import AccessTokenResponse, LoginRequest, UserRead
+from app.schemas.auth import AccessTokenResponse, ChangePasswordRequest, LoginRequest, UserRead
 from app.services import auth_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -66,6 +66,24 @@ async def logout(response: Response) -> None:
 @router.get("/me", response_model=UserRead)
 async def me(user: User = Depends(get_current_user)) -> UserRead:
     return UserRead.model_validate(user)
+
+
+@router.patch("/me/password", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("5/minute")
+async def change_password(
+    request: Request,
+    payload: ChangePasswordRequest,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> None:
+    try:
+        await auth_service.change_password(
+            db, user, payload.current_password, payload.new_password
+        )
+    except auth_service.InvalidCurrentPasswordError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect"
+        ) from exc
 
 
 @router.post("/bootstrap-admin", response_model=UserRead, status_code=status.HTTP_201_CREATED)

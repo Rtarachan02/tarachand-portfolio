@@ -11,6 +11,11 @@ class AccessTokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(min_length=1)
+    new_password: str = Field(min_length=8)
+
+
 class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

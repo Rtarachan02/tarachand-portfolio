@@ -6,7 +6,7 @@ import {
   useDeleteProject,
   useMarkContactMessageRead,
 } from "@/hooks/useAdmin";
-import { useLogout } from "@/hooks/useAuth";
+import { useChangePassword, useLogout } from "@/hooks/useAuth";
 import { useProjects } from "@/hooks/useProjects";
 import { useAuthStore } from "@/store/authStore";
 import type { ProjectCategory } from "@/types/api";
@@ -182,6 +182,78 @@ function AnalyticsPanel() {
   );
 }
 
+function SecurityPanel() {
+  const [form, setForm] = useState({ current_password: "", new_password: "", confirm: "" });
+  const [formError, setFormError] = useState<string | null>(null);
+  const changePassword = useChangePassword();
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setFormError(null);
+
+    if (form.new_password !== form.confirm) {
+      setFormError("New password and confirmation don't match.");
+      return;
+    }
+    if (form.new_password.length < 8) {
+      setFormError("New password must be at least 8 characters.");
+      return;
+    }
+
+    changePassword.mutate(
+      { current_password: form.current_password, new_password: form.new_password },
+      { onSuccess: () => setForm({ current_password: "", new_password: "", confirm: "" }) },
+    );
+  }
+
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-xl font-semibold">Security</h2>
+      <form
+        onSubmit={handleSubmit}
+        className="flex max-w-sm flex-col gap-2 rounded-xl border border-border p-4"
+      >
+        <label className="text-xs text-muted">Current password</label>
+        <input
+          required
+          type="password"
+          value={form.current_password}
+          onChange={(e) => setForm({ ...form, current_password: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <label className="text-xs text-muted">New password</label>
+        <input
+          required
+          type="password"
+          value={form.new_password}
+          onChange={(e) => setForm({ ...form, new_password: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <label className="text-xs text-muted">Confirm new password</label>
+        <input
+          required
+          type="password"
+          value={form.confirm}
+          onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <button
+          type="submit"
+          disabled={changePassword.isPending}
+          className="mt-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+        >
+          {changePassword.isPending ? "Updating…" : "Change password"}
+        </button>
+        {formError && <p className="text-sm text-red-500">{formError}</p>}
+        {changePassword.isError && !formError && (
+          <p className="text-sm text-red-500">Current password is incorrect.</p>
+        )}
+        {changePassword.isSuccess && <p className="text-sm text-primary">Password updated.</p>}
+      </form>
+    </section>
+  );
+}
+
 export function AdminDashboard() {
   const user = useAuthStore((s) => s.user);
   const logout = useLogout();
@@ -204,6 +276,7 @@ export function AdminDashboard() {
       <ProjectsPanel />
       <ContactPanel />
       <AnalyticsPanel />
+      <SecurityPanel />
     </div>
   );
 }

@@ -10,6 +10,10 @@ class OAuthEmailNotAllowedError(Exception):
     """Raised when an OAuth login succeeds at the provider but the email isn't allowlisted."""
 
 
+class InvalidCurrentPasswordError(Exception):
+    """Raised by change_password when the supplied current password doesn't match."""
+
+
 async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
     stmt = select(User).where(User.email == email.lower())
     result = await db.execute(stmt)
@@ -43,6 +47,15 @@ async def create_admin_user(
     await db.commit()
     await db.refresh(user)
     return user
+
+
+async def change_password(
+    db: AsyncSession, user: User, current_password: str, new_password: str
+) -> None:
+    if user.hashed_password is None or not verify_password(current_password, user.hashed_password):
+        raise InvalidCurrentPasswordError()
+    user.hashed_password = hash_password(new_password)
+    await db.commit()
 
 
 async def get_or_create_oauth_user(

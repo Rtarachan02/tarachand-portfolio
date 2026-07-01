@@ -23,6 +23,14 @@ export function useLogin() {
   });
 }
 
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: async (payload: { current_password: string; new_password: string }) => {
+      await apiClient.patch("/auth/me/password", payload);
+    },
+  });
+}
+
 export function useLogout() {
   const clearAuth = useAuthStore((s) => s.clearAuth);
 
