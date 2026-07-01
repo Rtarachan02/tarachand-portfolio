@@ -2,7 +2,7 @@
 
 A production-grade portfolio platform showcasing Embedded Systems, Backend Engineering, and AI/ML work, built with a FastAPI + PostgreSQL backend and a React 19 + TypeScript frontend.
 
-> **Status: Phases 1–5 — Architecture, Backend Core, Database, Frontend Core, and Authentication.** The repo skeleton, real PostgreSQL schema, a working public API, a React frontend wired to live data, and a full JWT + Google/GitHub OAuth admin auth system (with a protected `/admin` dashboard) are all in place and tested locally. The full interactive/3D UI and production deployment are being built out in subsequent phases. See [docs/](docs/) as it grows for architecture and API details.
+> **Status: Phases 1–6 — Architecture, Backend Core, Database, Frontend Core, Authentication, and Interactive UI.** The repo skeleton, real PostgreSQL schema, a working public API, a React frontend wired to live data, a full JWT + Google/GitHub OAuth admin auth system, and a premium interactive frontend (Three.js embedded-systems visualization, scroll animations, real markdown rendering) are all in place and tested locally. Production deployment and broader test coverage are being built out in subsequent phases. See [docs/](docs/) as it grows for architecture and API details.
 
 ## Monorepo layout
 
@@ -77,7 +77,7 @@ Visit `/admin/login` on the frontend to sign in; the dashboard at `/admin` lets 
 3. ✅ Database schema & migrations (9 tables, seeded, real CRUD API)
 4. ✅ Frontend core (routing, theme, layout, live data wiring, contact form)
 5. ✅ Authentication (JWT + Google/GitHub OAuth, admin dashboard: projects CMS, contact inbox, analytics)
-6. ⬜ Interactive UI (3D visualizations, scroll animations, markdown blog rendering)
+6. ✅ Interactive UI (Three.js DMA ring-buffer visualization, scroll-reveal animations, animated hero, real markdown + syntax-highlighted blog rendering, route-based code splitting)
 7. ⬜ Deployment (Docker, Render) — compose file written, not yet deployed
 8. ⬜ Testing (broader backend + frontend coverage)
 9. ⬜ Documentation

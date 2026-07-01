@@ -1,3 +1,8 @@
+import "highlight.js/styles/atom-one-dark.css";
+
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import remarkGfm from "remark-gfm";
 import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "@/components/ui/QueryState";
 import { useBlogPost } from "@/hooks/useBlogPosts";
@@ -22,9 +27,10 @@ export function BlogPost() {
             <span>{post.reading_time_minutes} min read</span>
             <span>{post.views_count} views</span>
           </div>
-          {/* Markdown rendering (syntax highlighting, etc.) lands in Phase 6 — plain text for now. */}
-          <div className="whitespace-pre-wrap text-base leading-relaxed text-foreground">
-            {post.content_markdown}
+          <div className="prose prose-neutral max-w-none dark:prose-invert prose-a:text-primary prose-code:before:content-none prose-code:after:content-none">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+              {post.content_markdown}
+            </ReactMarkdown>
           </div>
         </>
       )}

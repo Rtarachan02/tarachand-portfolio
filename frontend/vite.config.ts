@@ -15,5 +15,9 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
+    // The Three.js scene is route-split into its own chunk (only loaded on /embedded),
+    // so its inherent size doesn't affect the initial page load — raise the warning
+    // threshold instead of fighting a library-size warning that lazy-loading already solved.
+    chunkSizeWarningLimit: 900,
   },
 });
