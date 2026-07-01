@@ -9,6 +9,8 @@
 # - CORS_ORIGINS, OAUTH_REDIRECT_BASE_URL, and VITE_API_URL all reference the *other*
 #   service's URL, which Render only assigns after first deploy — set these manually in
 #   the Render dashboard once both services are up, then redeploy the backend.
+# - Free-tier web services don't support preDeployCommand, so migrations instead run at
+#   container startup (see backend/Dockerfile's CMD) — safe/idempotent on every restart.
 
 databases:
   - name: portfolio-postgres
@@ -24,7 +26,6 @@ services:
     dockerContext: ./backend
     plan: free
     healthCheckPath: /health
-    preDeployCommand: alembic upgrade head
     envVars:
       - key: ENVIRONMENT
         value: production

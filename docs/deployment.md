@@ -3,7 +3,7 @@
 This repo includes a [Render Blueprint](https://render.com/docs/blueprint-spec) (`render.yaml` at the repo root) that provisions:
 
 - **portfolio-postgres** — a managed PostgreSQL database (free plan; Render deletes free databases after ~30 days, so upgrade the plan before that matters for real use)
-- **portfolio-backend** — the FastAPI app, built from `backend/Dockerfile`, with `alembic upgrade head` running automatically before every deploy (`preDeployCommand`)
+- **portfolio-backend** — the FastAPI app, built from `backend/Dockerfile`. Migrations run automatically on every container start via `alembic upgrade head` in `backend/entrypoint.sh` (free-tier Render services don't support `preDeployCommand`, so this runs at startup instead — it's a safe no-op once the DB is already current)
 - **portfolio-frontend** — the React app, built as a static site (`npm run build`, serving `frontend/dist`), with an SPA rewrite so client-side routes work on refresh
 
 Redis is **not** provisioned — nothing in the codebase uses it yet (rate limiting runs in-memory), and Render no longer offers a free Redis tier. Add a `type: redis` service to `render.yaml` if a real caching need comes up later.
@@ -58,4 +58,4 @@ The script prompts for email/password interactively (hidden input) — the passw
 
 ## Redeploying
 
-Render auto-deploys on every push to the connected branch (`main`). Alembic migrations run automatically via `preDeployCommand` before each new version goes live.
+Render auto-deploys on every push to the connected branch (`main`). Alembic migrations run automatically at container startup (see above) before each new version starts serving traffic.
