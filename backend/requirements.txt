@@ -9,7 +9,7 @@ pydantic-settings==2.7.1
 email-validator==2.2.0
 
 # --- Database ---
-sqlalchemy==2.0.36
+sqlalchemy[asyncio]==2.0.36  # [asyncio] pulls in greenlet, required by create_async_engine
 alembic==1.14.0
 asyncpg==0.30.0
 psycopg2-binary==2.9.10
