@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light theme — premium neutral + electric-blue accent palette */
+  --color-background: 250 250 252;
+  --color-surface: 255 255 255;
+  --color-foreground: 15 17 21;
+  --color-muted: 100 106 118;
+  --color-primary: 14 165 233;
+  --color-primary-foreground: 255 255 255;
+  --color-accent: 168 85 247;
+  --color-accent-foreground: 255 255 255;
+  --color-border: 226 229 235;
+}
+
+.dark {
+  --color-background: 9 10 13;
+  --color-surface: 17 19 24;
+  --color-foreground: 237 238 240;
+  --color-muted: 148 155 168;
+  --color-primary: 56 189 248;
+  --color-primary-foreground: 9 10 13;
+  --color-accent: 192 132 252;
+  --color-accent-foreground: 9 10 13;
+  --color-border: 31 34 42;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}

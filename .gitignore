@@ -1,0 +1,54 @@
+# --- Environment ---
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# --- Python / Backend ---
+backend/__pycache__/
+backend/**/__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# --- Node / Frontend ---
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Alembic / DB ---
+*.sqlite3
+database/data/
+
+# --- Docker ---
+*.pid
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# --- Build artifacts ---
+dist/
+build/
+*.egg
+
+# --- Secrets / keys ---
+*.pem
+*.key
+credentials.json
