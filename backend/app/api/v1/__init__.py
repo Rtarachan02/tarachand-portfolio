@@ -14,6 +14,7 @@ from app.api.v1 import (
     oauth,
     profile,
     projects,
+    resume,
     skills,
     testimonials,
 )
@@ -24,6 +25,7 @@ api_router.include_router(auth.router)
 api_router.include_router(oauth.router)
 api_router.include_router(profile.router)
 api_router.include_router(github.router)
+api_router.include_router(resume.router)
 api_router.include_router(projects.router)
 api_router.include_router(skills.router)
 api_router.include_router(experience.router)

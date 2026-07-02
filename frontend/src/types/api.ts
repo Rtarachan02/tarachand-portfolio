@@ -119,3 +119,23 @@ export interface ProjectCreate {
   image_url?: string | null;
   featured?: boolean;
 }
+
+export interface ExperienceCreate {
+  company: string;
+  role: string;
+  location?: string | null;
+  employment_type?: string | null;
+  description?: string;
+  highlights?: string[];
+  start_date: string;
+  end_date?: string | null;
+  company_url?: string | null;
+  logo_url?: string | null;
+}
+
+export interface SkillCreate {
+  name: string;
+  category: SkillCategory;
+  proficiency?: number;
+  icon?: string | null;
+}

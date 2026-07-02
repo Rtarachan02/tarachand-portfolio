@@ -1,6 +1,6 @@
 export function ProfilePhoto({ photoUrl }: { photoUrl: string | null }) {
   return (
-    <div className="h-32 w-32 shrink-0 overflow-hidden rounded-full border-2 border-primary/40 bg-surface shadow-lg shadow-primary/10 sm:h-40 sm:w-40">
+    <div className="h-32 w-32 shrink-0 overflow-hidden rounded-full border-2 border-primary/40 bg-surface shadow-lg shadow-primary/10 sm:h-44 sm:w-44 lg:h-56 lg:w-56">
       {photoUrl ? (
         <img src={photoUrl} alt="Profile" className="h-full w-full object-cover" />
       ) : (

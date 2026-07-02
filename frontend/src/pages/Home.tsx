@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
+import { CareerJourney } from "@/components/sections/CareerJourney";
+import { DownloadResumeButton } from "@/components/sections/DownloadResumeButton";
 import { GitHubStatsCard } from "@/components/sections/GitHubStatsCard";
 import { LinkedInEmbed } from "@/components/sections/LinkedInEmbed";
 import { SocialLinks } from "@/components/sections/SocialLinks";
+import { TechDomainExpertise } from "@/components/sections/TechDomainExpertise";
 import { AuroraBackground } from "@/components/ui/AuroraBackground";
 import { ProfilePhoto } from "@/components/ui/ProfilePhoto";
 import { ProjectCard } from "@/components/ui/ProjectCard";
@@ -19,8 +22,8 @@ export function Home() {
       <section className="relative mx-auto flex min-h-[80vh] max-w-6xl flex-col justify-center gap-6 px-6">
         <AuroraBackground />
 
-        <div className="flex flex-col-reverse items-start gap-8 sm:flex-row sm:items-center">
-          <div className="flex flex-col gap-6">
+        <div className="flex flex-col-reverse items-start justify-between gap-10 sm:flex-row sm:items-center sm:gap-16">
+          <div className="flex max-w-2xl flex-1 flex-col gap-6">
             <motion.p
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -33,7 +36,7 @@ export function Home() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="max-w-3xl text-5xl font-bold leading-tight tracking-tight sm:text-6xl"
+              className="text-5xl font-bold leading-tight tracking-tight sm:text-6xl lg:text-7xl"
             >
               Tarachand Rana
             </motion.h1>
@@ -51,8 +54,10 @@ export function Home() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex flex-wrap items-center gap-4"
               >
                 <SocialLinks profile={profile} />
+                <DownloadResumeButton />
               </motion.div>
             )}
           </div>
@@ -61,11 +66,15 @@ export function Home() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
+            className="shrink-0"
           >
             <ProfilePhoto photoUrl={profile?.photo_url ?? null} />
           </motion.div>
         </div>
       </section>
+
+      <CareerJourney />
+      <TechDomainExpertise />
 
       <section className="mx-auto flex max-w-6xl flex-col gap-6 px-6 pb-24">
         <Reveal>

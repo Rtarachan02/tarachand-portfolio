@@ -2,15 +2,21 @@ import { type FormEvent, useEffect, useState } from "react";
 import {
   useAnalyticsSummary,
   useContactMessages,
+  useCreateExperience,
   useCreateProject,
+  useCreateSkill,
+  useDeleteExperience,
   useDeleteProject,
+  useDeleteSkill,
   useMarkContactMessageRead,
 } from "@/hooks/useAdmin";
 import { useChangePassword, useLogout } from "@/hooks/useAuth";
+import { useExperience } from "@/hooks/useExperience";
 import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
 import { useProjects } from "@/hooks/useProjects";
+import { useSkills } from "@/hooks/useSkills";
 import { useAuthStore } from "@/store/authStore";
-import type { ProjectCategory } from "@/types/api";
+import type { ProjectCategory, SkillCategory } from "@/types/api";
 
 const EMPTY_PROFILE_FORM = {
   photo_url: "",
@@ -219,6 +225,240 @@ function ProjectsPanel() {
   );
 }
 
+const EMPTY_EXPERIENCE_FORM = {
+  company: "",
+  role: "",
+  location: "",
+  employment_type: "",
+  description: "",
+  highlights: "",
+  start_date: "",
+  end_date: "",
+};
+
+function ExperiencePanel() {
+  const { data: experience, isLoading } = useExperience();
+  const createExperience = useCreateExperience();
+  const deleteExperience = useDeleteExperience();
+  const [form, setForm] = useState(EMPTY_EXPERIENCE_FORM);
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    createExperience.mutate(
+      {
+        company: form.company,
+        role: form.role,
+        location: form.location || null,
+        employment_type: form.employment_type || null,
+        description: form.description,
+        highlights: form.highlights
+          .split(",")
+          .map((h) => h.trim())
+          .filter(Boolean),
+        start_date: form.start_date,
+        end_date: form.end_date || null,
+      },
+      { onSuccess: () => setForm(EMPTY_EXPERIENCE_FORM) },
+    );
+  }
+
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-xl font-semibold">Experience</h2>
+      <p className="text-sm text-muted">
+        Leave "End date" blank for your current role — it drives the homepage career timeline.
+      </p>
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-2 rounded-xl border border-border p-4 sm:grid-cols-2"
+      >
+        <input
+          required
+          placeholder="Company"
+          value={form.company}
+          onChange={(e) => setForm({ ...form, company: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <input
+          required
+          placeholder="Role"
+          value={form.role}
+          onChange={(e) => setForm({ ...form, role: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <input
+          placeholder="Location"
+          value={form.location}
+          onChange={(e) => setForm({ ...form, location: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <input
+          placeholder="Employment type (e.g. Full-time)"
+          value={form.employment_type}
+          onChange={(e) => setForm({ ...form, employment_type: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <input
+          placeholder="Description"
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm sm:col-span-2"
+        />
+        <input
+          placeholder="Highlights (comma separated)"
+          value={form.highlights}
+          onChange={(e) => setForm({ ...form, highlights: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm sm:col-span-2"
+        />
+        <label className="flex flex-col gap-1 text-xs text-muted">
+          Start date
+          <input
+            required
+            type="date"
+            value={form.start_date}
+            onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-muted">
+          End date (blank = current)
+          <input
+            type="date"
+            value={form.end_date}
+            onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+          />
+        </label>
+        <button
+          type="submit"
+          disabled={createExperience.isPending}
+          className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground sm:col-span-2"
+        >
+          {createExperience.isPending ? "Adding…" : "Add experience"}
+        </button>
+      </form>
+
+      {isLoading && <p className="text-sm text-muted">Loading…</p>}
+      <ul className="flex flex-col gap-2">
+        {experience?.map((e) => (
+          <li
+            key={e.id}
+            className="flex items-center justify-between rounded-lg border border-border px-4 py-2 text-sm"
+          >
+            <span>
+              {e.role} · {e.company}{" "}
+              <span className="text-muted">
+                ({e.start_date} – {e.end_date ?? "present"})
+              </span>
+            </span>
+            <button
+              onClick={() => deleteExperience.mutate(e.id)}
+              className="text-red-500 hover:underline"
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+const SKILL_CATEGORIES: SkillCategory[] = [
+  "embedded",
+  "backend",
+  "ai_ml",
+  "frontend",
+  "languages",
+  "tools",
+];
+
+const EMPTY_SKILL_FORM = {
+  name: "",
+  category: "backend" as SkillCategory,
+  proficiency: 3,
+};
+
+function SkillsPanel() {
+  const { data: skills, isLoading } = useSkills();
+  const createSkill = useCreateSkill();
+  const deleteSkill = useDeleteSkill();
+  const [form, setForm] = useState(EMPTY_SKILL_FORM);
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    createSkill.mutate(form, { onSuccess: () => setForm(EMPTY_SKILL_FORM) });
+  }
+
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-xl font-semibold">Skills</h2>
+      <p className="text-sm text-muted">Drives the homepage tech-domain breakdown.</p>
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-2 rounded-xl border border-border p-4 sm:grid-cols-3"
+      >
+        <input
+          required
+          placeholder="Skill name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <select
+          value={form.category}
+          onChange={(e) => setForm({ ...form, category: e.target.value as SkillCategory })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        >
+          {SKILL_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <select
+          value={form.proficiency}
+          onChange={(e) => setForm({ ...form, proficiency: Number(e.target.value) })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        >
+          {[1, 2, 3, 4, 5].map((p) => (
+            <option key={p} value={p}>
+              Proficiency {p}/5
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          disabled={createSkill.isPending}
+          className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground sm:col-span-3"
+        >
+          {createSkill.isPending ? "Adding…" : "Add skill"}
+        </button>
+      </form>
+
+      {isLoading && <p className="text-sm text-muted">Loading…</p>}
+      <ul className="flex flex-wrap gap-2">
+        {skills?.map((s) => (
+          <li
+            key={s.id}
+            className="flex items-center gap-2 rounded-full border border-border px-3 py-1 text-sm"
+          >
+            {s.name} <span className="text-muted">· {s.category}</span>
+            <button
+              onClick={() => deleteSkill.mutate(s.id)}
+              className="text-red-500 hover:underline"
+            >
+              ×
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function ContactPanel() {
   const { data: messages, isLoading } = useContactMessages();
   const markRead = useMarkContactMessageRead();
@@ -376,6 +616,8 @@ export function AdminDashboard() {
       </header>
 
       <ProfilePanel />
+      <ExperiencePanel />
+      <SkillsPanel />
       <ProjectsPanel />
       <ContactPanel />
       <AnalyticsPanel />

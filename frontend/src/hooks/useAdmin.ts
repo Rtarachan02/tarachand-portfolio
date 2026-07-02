@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import type { AnalyticsSummary, ContactMessageAdmin, Project, ProjectCreate } from "@/types/api";
+import type {
+  AnalyticsSummary,
+  ContactMessageAdmin,
+  Experience,
+  ExperienceCreate,
+  Project,
+  ProjectCreate,
+  Skill,
+  SkillCreate,
+} from "@/types/api";
 
 export function useContactMessages() {
   return useQuery({
@@ -56,6 +65,56 @@ export function useDeleteProject() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
+  });
+}
+
+export function useCreateExperience() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: ExperienceCreate) => {
+      const { data } = await apiClient.post<Experience>("/experience", payload);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["experience"] });
+    },
+  });
+}
+
+export function useDeleteExperience() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await apiClient.delete(`/experience/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["experience"] });
+    },
+  });
+}
+
+export function useCreateSkill() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: SkillCreate) => {
+      const { data } = await apiClient.post<Skill>("/skills", payload);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["skills"] });
+    },
+  });
+}
+
+export function useDeleteSkill() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await apiClient.delete(`/skills/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["skills"] });
     },
   });
 }
