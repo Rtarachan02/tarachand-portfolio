@@ -1,13 +1,17 @@
+import pathlib
+
 import pytest
 
-from app.api.v1.resume import RESUME_PATH
+import app.api.v1.resume as resume_module
 
 
 @pytest.fixture(autouse=True)
-def _ensure_missing():
-    RESUME_PATH.unlink(missing_ok=True)
-    yield
-    RESUME_PATH.unlink(missing_ok=True)
+def _fake_resume_path(monkeypatch, tmp_path: pathlib.Path):
+    # Point the router at a throwaway path instead of the real
+    # backend/resources/resume/resume.pdf — tests must never touch real user data.
+    fake_path = tmp_path / "resume.pdf"
+    monkeypatch.setattr(resume_module, "RESUME_PATH", fake_path)
+    return fake_path
 
 
 def test_info_reports_unavailable_when_missing(client) -> None:
@@ -21,9 +25,8 @@ def test_download_404_when_missing(client) -> None:
     assert response.status_code == 404
 
 
-def test_download_serves_file_when_present(client) -> None:
-    RESUME_PATH.parent.mkdir(parents=True, exist_ok=True)
-    RESUME_PATH.write_bytes(b"%PDF-1.4 fake content for test")
+def test_download_serves_file_when_present(client, _fake_resume_path) -> None:
+    _fake_resume_path.write_bytes(b"%PDF-1.4 fake content for test")
 
     info_response = client.get("/api/v1/resume/info")
     assert info_response.json() == {"available": True}
