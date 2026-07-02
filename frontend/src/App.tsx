@@ -3,6 +3,7 @@ import { Outlet, Route, Routes } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useBootstrapAuth } from "@/hooks/useAuth";
+import { useTrackPageview } from "@/hooks/useTrackPageview";
 import { AdminLogin } from "@/pages/admin/AdminLogin";
 import { OAuthCallback } from "@/pages/admin/OAuthCallback";
 import { AIShowcase } from "@/pages/AIShowcase";
@@ -41,6 +42,7 @@ function PublicLayout() {
 
 export function App() {
   useBootstrapAuth();
+  useTrackPageview();
 
   return (
     <Suspense fallback={<PageFallback />}>
