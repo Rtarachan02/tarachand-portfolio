@@ -67,6 +67,10 @@ export interface BlogPost extends BlogPostSummary {
   content_markdown: string;
 }
 
+export interface BlogPostAdmin extends BlogPost {
+  published: boolean;
+}
+
 export interface PaginatedBlogPosts {
   items: BlogPostSummary[];
   total: number;
@@ -82,6 +86,25 @@ export interface Testimonial {
   author_avatar_url: string | null;
   content: string;
   rating: number | null;
+}
+
+export interface TestimonialAdmin extends Testimonial {
+  is_approved: boolean;
+  sort_order: number;
+}
+
+export interface TestimonialCreate {
+  author_name: string;
+  author_role?: string | null;
+  author_company?: string | null;
+  author_avatar_url?: string | null;
+  content: string;
+  rating?: number | null;
+  is_approved?: boolean;
+}
+
+export interface TestimonialUpdate {
+  is_approved?: boolean;
 }
 
 export interface ContactMessageCreate {
@@ -133,9 +156,39 @@ export interface ExperienceCreate {
   logo_url?: string | null;
 }
 
+export interface CertificationCreate {
+  name: string;
+  issuer: string;
+  issue_date: string;
+  expiry_date?: string | null;
+  credential_id?: string | null;
+  credential_url?: string | null;
+  image_url?: string | null;
+}
+
 export interface SkillCreate {
   name: string;
   category: SkillCategory;
   proficiency?: number;
   icon?: string | null;
+}
+
+export interface BlogPostCreate {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content_markdown: string;
+  cover_image_url?: string | null;
+  tags?: string[];
+  published?: boolean;
+}
+
+export interface BlogPostUpdate {
+  slug?: string;
+  title?: string;
+  excerpt?: string;
+  content_markdown?: string;
+  cover_image_url?: string | null;
+  tags?: string[];
+  published?: boolean;
 }

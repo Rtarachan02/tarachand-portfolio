@@ -6,7 +6,6 @@ from app.models.contact import ContactMessage
 from app.models.experience import Experience
 from app.models.profile import SiteProfile
 from app.models.project import Project, ProjectCategory
-from app.models.resume import Resume
 from app.models.skill import Skill, SkillCategory
 from app.models.testimonial import Testimonial
 from app.models.user import OAuthProvider, User
@@ -20,7 +19,6 @@ __all__ = [
     "OAuthProvider",
     "Project",
     "ProjectCategory",
-    "Resume",
     "SiteProfile",
     "Skill",
     "SkillCategory",

@@ -61,7 +61,7 @@ There is **no public registration endpoint** — admin accounts are created one 
 1. **Password login**: run `python scripts/create_admin.py` from `backend/` (prompts for email/password interactively, or set `ADMIN_EMAIL`/`ADMIN_PASSWORD` env vars for non-interactive use in a deploy hook).
 2. **OAuth (Google/GitHub)**: set `ALLOWED_ADMIN_EMAILS` in `.env` to a comma-separated allowlist. Only those emails can ever be granted an admin session via OAuth — anyone else who signs in gets redirected back with an error.
 
-Visit `/admin/login` on the frontend to sign in; the dashboard at `/admin` lets you manage projects, review contact messages, and view visitor analytics.
+Visit `/admin/login` on the frontend to sign in. Every piece of content shown on the public site is manageable from the `/admin` dashboard — profile/photo/social links, projects, blog posts (Markdown, draft/publish), experience, skills, certifications, testimonials (with approval) — plus the contact inbox and visitor analytics. Nothing requires touching code or the seed script.
 
 ## Deploying
 

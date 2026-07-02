@@ -1,16 +1,27 @@
 import { type FormEvent, useEffect, useState } from "react";
 import {
   useAnalyticsSummary,
+  useBlogPostsAdmin,
   useContactMessages,
+  useCreateBlogPost,
+  useCreateCertification,
   useCreateExperience,
   useCreateProject,
   useCreateSkill,
+  useCreateTestimonial,
+  useDeleteBlogPost,
+  useDeleteCertification,
   useDeleteExperience,
   useDeleteProject,
   useDeleteSkill,
+  useDeleteTestimonial,
   useMarkContactMessageRead,
+  useTestimonialsAdmin,
+  useUpdateBlogPost,
+  useUpdateTestimonial,
 } from "@/hooks/useAdmin";
 import { useChangePassword, useLogout } from "@/hooks/useAuth";
+import { useCertifications } from "@/hooks/useCertifications";
 import { useExperience } from "@/hooks/useExperience";
 import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
 import { useProjects } from "@/hooks/useProjects";
@@ -459,6 +470,370 @@ function SkillsPanel() {
   );
 }
 
+const EMPTY_CERTIFICATION_FORM = {
+  name: "",
+  issuer: "",
+  issue_date: "",
+  credential_url: "",
+};
+
+function CertificationsPanel() {
+  const { data: certifications, isLoading } = useCertifications();
+  const createCertification = useCreateCertification();
+  const deleteCertification = useDeleteCertification();
+  const [form, setForm] = useState(EMPTY_CERTIFICATION_FORM);
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    createCertification.mutate(
+      {
+        name: form.name,
+        issuer: form.issuer,
+        issue_date: form.issue_date,
+        credential_url: form.credential_url || null,
+      },
+      { onSuccess: () => setForm(EMPTY_CERTIFICATION_FORM) },
+    );
+  }
+
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-xl font-semibold">Certifications</h2>
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-2 rounded-xl border border-border p-4 sm:grid-cols-2"
+      >
+        <input
+          required
+          placeholder="Certification name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <input
+          required
+          placeholder="Issuer"
+          value={form.issuer}
+          onChange={(e) => setForm({ ...form, issuer: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <label className="flex flex-col gap-1 text-xs text-muted">
+          Issue date
+          <input
+            required
+            type="date"
+            value={form.issue_date}
+            onChange={(e) => setForm({ ...form, issue_date: e.target.value })}
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+          />
+        </label>
+        <input
+          placeholder="Credential URL (optional)"
+          value={form.credential_url}
+          onChange={(e) => setForm({ ...form, credential_url: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <button
+          type="submit"
+          disabled={createCertification.isPending}
+          className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground sm:col-span-2"
+        >
+          {createCertification.isPending ? "Adding…" : "Add certification"}
+        </button>
+      </form>
+
+      {isLoading && <p className="text-sm text-muted">Loading…</p>}
+      <ul className="flex flex-col gap-2">
+        {certifications?.map((c) => (
+          <li
+            key={c.id}
+            className="flex items-center justify-between rounded-lg border border-border px-4 py-2 text-sm"
+          >
+            <span>
+              {c.name} <span className="text-muted">· {c.issuer}</span>
+            </span>
+            <button
+              onClick={() => deleteCertification.mutate(c.id)}
+              className="text-red-500 hover:underline"
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+const EMPTY_BLOG_FORM = {
+  slug: "",
+  title: "",
+  excerpt: "",
+  content_markdown: "",
+  tags: "",
+  published: false,
+};
+
+function BlogPanel() {
+  const { data: posts, isLoading } = useBlogPostsAdmin();
+  const createPost = useCreateBlogPost();
+  const updatePost = useUpdateBlogPost();
+  const deletePost = useDeleteBlogPost();
+  const [form, setForm] = useState(EMPTY_BLOG_FORM);
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    createPost.mutate(
+      {
+        slug: form.slug,
+        title: form.title,
+        excerpt: form.excerpt,
+        content_markdown: form.content_markdown,
+        tags: form.tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+        published: form.published,
+      },
+      { onSuccess: () => setForm(EMPTY_BLOG_FORM) },
+    );
+  }
+
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-xl font-semibold">Blog</h2>
+      <p className="text-sm text-muted">
+        Write in Markdown — headings, lists, and fenced code blocks all render on the site.
+      </p>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 rounded-xl border border-border p-4">
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input
+            required
+            placeholder="Slug (url-friendly-name)"
+            value={form.slug}
+            onChange={(e) => setForm({ ...form, slug: e.target.value })}
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+          />
+          <input
+            required
+            placeholder="Title"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+          />
+        </div>
+        <input
+          required
+          placeholder="Excerpt (shown in the post list)"
+          value={form.excerpt}
+          onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <textarea
+          required
+          placeholder="Content (Markdown)"
+          rows={8}
+          value={form.content_markdown}
+          onChange={(e) => setForm({ ...form, content_markdown: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs"
+        />
+        <input
+          placeholder="Tags (comma separated)"
+          value={form.tags}
+          onChange={(e) => setForm({ ...form, tags: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={form.published}
+            onChange={(e) => setForm({ ...form, published: e.target.checked })}
+          />
+          Publish immediately (otherwise saved as a draft)
+        </label>
+        <button
+          type="submit"
+          disabled={createPost.isPending}
+          className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+        >
+          {createPost.isPending ? "Saving…" : "Save post"}
+        </button>
+      </form>
+
+      {isLoading && <p className="text-sm text-muted">Loading…</p>}
+      <ul className="flex flex-col gap-2">
+        {posts?.map((p) => (
+          <li
+            key={p.id}
+            className="flex items-center justify-between rounded-lg border border-border px-4 py-2 text-sm"
+          >
+            <span>
+              {p.title}{" "}
+              <span className={p.published ? "text-primary" : "text-muted"}>
+                · {p.published ? "published" : "draft"}
+              </span>
+            </span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() =>
+                  updatePost.mutate({ id: p.id, payload: { published: !p.published } })
+                }
+                className="text-primary hover:underline"
+              >
+                {p.published ? "Unpublish" : "Publish"}
+              </button>
+              <button
+                onClick={() => deletePost.mutate(p.id)}
+                className="text-red-500 hover:underline"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+        {posts?.length === 0 && <p className="text-sm text-muted">No posts yet.</p>}
+      </ul>
+    </section>
+  );
+}
+
+const EMPTY_TESTIMONIAL_FORM = {
+  author_name: "",
+  author_role: "",
+  author_company: "",
+  content: "",
+  rating: 5,
+  is_approved: true,
+};
+
+function TestimonialsPanel() {
+  const { data: testimonials, isLoading } = useTestimonialsAdmin();
+  const createTestimonial = useCreateTestimonial();
+  const updateTestimonial = useUpdateTestimonial();
+  const deleteTestimonial = useDeleteTestimonial();
+  const [form, setForm] = useState(EMPTY_TESTIMONIAL_FORM);
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    createTestimonial.mutate(
+      {
+        author_name: form.author_name,
+        author_role: form.author_role || null,
+        author_company: form.author_company || null,
+        content: form.content,
+        rating: form.rating,
+        is_approved: form.is_approved,
+      },
+      { onSuccess: () => setForm(EMPTY_TESTIMONIAL_FORM) },
+    );
+  }
+
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-xl font-semibold">Testimonials</h2>
+      <p className="text-sm text-muted">
+        Only approved testimonials show up on the public site — toggle approval anytime.
+      </p>
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-2 rounded-xl border border-border p-4 sm:grid-cols-2"
+      >
+        <input
+          required
+          placeholder="Author name"
+          value={form.author_name}
+          onChange={(e) => setForm({ ...form, author_name: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <input
+          placeholder="Role"
+          value={form.author_role}
+          onChange={(e) => setForm({ ...form, author_role: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        />
+        <input
+          placeholder="Company"
+          value={form.author_company}
+          onChange={(e) => setForm({ ...form, author_company: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm sm:col-span-2"
+        />
+        <textarea
+          required
+          placeholder="Testimonial content"
+          rows={3}
+          value={form.content}
+          onChange={(e) => setForm({ ...form, content: e.target.value })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm sm:col-span-2"
+        />
+        <select
+          value={form.rating}
+          onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })}
+          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        >
+          {[1, 2, 3, 4, 5].map((r) => (
+            <option key={r} value={r}>
+              {r}/5 stars
+            </option>
+          ))}
+        </select>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={form.is_approved}
+            onChange={(e) => setForm({ ...form, is_approved: e.target.checked })}
+          />
+          Approve immediately
+        </label>
+        <button
+          type="submit"
+          disabled={createTestimonial.isPending}
+          className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground sm:col-span-2"
+        >
+          {createTestimonial.isPending ? "Adding…" : "Add testimonial"}
+        </button>
+      </form>
+
+      {isLoading && <p className="text-sm text-muted">Loading…</p>}
+      <ul className="flex flex-col gap-2">
+        {testimonials?.map((t) => (
+          <li key={t.id} className="rounded-lg border border-border p-4 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">
+                {t.author_name}
+                {t.author_company && <span className="text-muted"> · {t.author_company}</span>}
+              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() =>
+                    updateTestimonial.mutate({
+                      id: t.id,
+                      payload: { is_approved: !t.is_approved },
+                    })
+                  }
+                  className={t.is_approved ? "text-primary hover:underline" : "text-muted hover:underline"}
+                >
+                  {t.is_approved ? "Approved" : "Approve"}
+                </button>
+                <button
+                  onClick={() => deleteTestimonial.mutate(t.id)}
+                  className="text-red-500 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+            <p className="mt-1 text-muted">{t.content}</p>
+          </li>
+        ))}
+        {testimonials?.length === 0 && <p className="text-sm text-muted">No testimonials yet.</p>}
+      </ul>
+    </section>
+  );
+}
+
 function ContactPanel() {
   const { data: messages, isLoading } = useContactMessages();
   const markRead = useMarkContactMessageRead();
@@ -618,7 +993,10 @@ export function AdminDashboard() {
       <ProfilePanel />
       <ExperiencePanel />
       <SkillsPanel />
+      <CertificationsPanel />
       <ProjectsPanel />
+      <BlogPanel />
+      <TestimonialsPanel />
       <ContactPanel />
       <AnalyticsPanel />
       <SecurityPanel />
