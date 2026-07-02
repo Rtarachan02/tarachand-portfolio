@@ -51,6 +51,8 @@ services:
         sync: false
       - key: GITHUB_CLIENT_SECRET
         sync: false
+      - key: GITHUB_API_TOKEN
+        sync: false
 
   - type: web
     name: portfolio-frontend

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.models.profile import SiteProfile
 from app.schemas.github import GitHubRepo, GitHubStats
-from app.services.github_service import extract_username
+from app.services.github_service import _request_headers, extract_username
 
 
 def _sync_engine():
@@ -39,6 +39,20 @@ def _clean_profile():
 )
 def test_extract_username(url: str, expected: str) -> None:
     assert extract_username(url) == expected
+
+
+def test_request_headers_include_user_agent_always() -> None:
+    assert _request_headers()["User-Agent"] == "tarachand-portfolio"
+
+
+def test_request_headers_omit_auth_when_no_token(monkeypatch) -> None:
+    monkeypatch.setattr(settings, "github_api_token", "")
+    assert "Authorization" not in _request_headers()
+
+
+def test_request_headers_include_auth_when_token_set(monkeypatch) -> None:
+    monkeypatch.setattr(settings, "github_api_token", "ghp_fake_token")
+    assert _request_headers()["Authorization"] == "Bearer ghp_fake_token"
 
 
 def test_stats_404_when_github_not_configured(client) -> None:

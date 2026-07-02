@@ -40,6 +40,12 @@ Only needed if you want Google/GitHub sign-in for `/admin`. Password login works
 
 Paste the resulting client ID/secret pairs into the backend's env vars and redeploy.
 
+## GitHub stats token (recommended)
+
+The homepage's GitHub stats card calls GitHub's public REST API. Unauthenticated calls are limited to 60/hour **per IP** — on a shared host like Render, that IP is shared with every other app on the same infrastructure, so this limit gets hit in practice (you'll see the stats card silently disappear, or a `502` on `/api/v1/github/stats` in the network tab).
+
+Fix: [github.com/settings/tokens](https://github.com/settings/tokens) → Generate new token (classic) → no scopes needed (public data only) → set `GITHUB_API_TOKEN` on the backend to the generated token. This raises the limit to 5000/hour, tracked per-token instead of per-IP.
+
 ## Creating your admin account in production
 
 There's no public registration endpoint by design (see [../README.md](../README.md#admin-access)). Free-tier Render services don't include Shell access, and hand-rolling an external Postgres connection from your own machine means dealing with SSL — so instead, use the one-time bootstrap endpoint:
